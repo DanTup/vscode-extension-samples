@@ -25,9 +25,10 @@ export class TestFile {
 
 	public async updateFromDisk(controller: vscode.TestController, item: vscode.TestItem) {
 		try {
+			const doc = await vscode.workspace.openTextDocument(item.uri!);
 			const content = await getContentFromFilesystem(item.uri!);
 			item.error = undefined;
-			this.updateFromContents(controller, content, item);
+			this.updateFromContents(controller, doc, content, item);
 		} catch (e) {
 			item.error = (e as Error).stack;
 		}
@@ -37,7 +38,7 @@ export class TestFile {
 	 * Parses the tests from the input text, and updates the tests contained
 	 * by this file to be those from the text,
 	 */
-	public updateFromContents(controller: vscode.TestController, content: string, item: vscode.TestItem) {
+	public updateFromContents(controller: vscode.TestController, document: vscode.TextDocument, content: string, item: vscode.TestItem) {
 		const ancestors = [{ item, children: [] as vscode.TestItem[] }];
 		const thisGeneration = generationCounter++;
 		this.didResolve = true;
@@ -49,7 +50,7 @@ export class TestFile {
 			}
 		};
 
-		parseMarkdown(content, {
+		parseMarkdown(document, content, {
 			onTest: (range, a, operator, b, expected) => {
 				const parent = ancestors[ancestors.length - 1];
 				const data = new TestCase(a, operator as Operator, b, expected, thisGeneration);

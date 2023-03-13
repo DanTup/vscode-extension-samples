@@ -131,7 +131,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 
 		const { file, data } = getOrCreateFile(ctrl, e.uri);
-		data.updateFromContents(ctrl, e.getText(), file);
+		data.updateFromContents(ctrl, e, e.getText(), file);
 	}
 
 	for (const document of vscode.workspace.textDocuments) {
